@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kailash lab2</title>
+    <style>
+        .container {
+            margin: 20px;
+        }
+        .button-group {
+            margin-bottom: 10px;
+        }
+        #res {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body style="background-image: url(https://images.pexels.com/photos/4460434/pexels-photo-4460434.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1);">
+
+    <h3 style="color:blue;">Choose a type of cat to have:</h3>
+
+        <button onclick="allName()">All Names</button><br>
+        <br>
+        <button onclick="getHealthIssues()">Health Issues</button>
+        <input type="text" id="healthInput">
+
+
+    <div class="button-group">
+        <input type="radio" id="imperial" name="weight" value="imperial" checked>
+        <label for="imperial">Imperial</label>
+        <input type="radio" id="metric" name="weight" value="metric">
+        <label for="metric">Metric</label>
+        <button onclick="getWeight()">Weight</button>
+    </div>
+
+    <div class="button-group">
+        <button onclick="getIntelligenceFriendly()">Intelligence - Friendly</button><br>
+       <br> <button onclick="getAverageIntelligence()">Average Intelligence</button><br>
+        <br><button onclick="getAverageIntelligenceForChildFriendly()">Average Intelligence for Child Friendly = 4</button>
+    </div>
+
+    <div id="res" style="background-color: aqua;"><-All Results should be displayed here-></div>
+</div>
+
+<script>
+    const jsonUrl = 'https://api.thecatapi.com/v1/breeds';
+    const jsonContentElement = document.getElementById('res');
+
+    function allName() {
+        jsonContentElement.innerHTML = "";
+        fetch(jsonUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Something went wrong.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                jsonContentElement.innerHTML = "All names (total = 67):<br>";
+                Object.values(data).forEach(value => {
+                    const lineBreak = document.createElement('br');
+                    jsonContentElement.appendChild(document.createTextNode(value.name));
+                    jsonContentElement.appendChild(lineBreak);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching JSON:', error);
+            });
+    }
+
+    function getHealthIssues() {
+        const healthInput = document.getElementById('healthInput').value;
+        const healthIssueNumber = parseInt(healthInput);
+        jsonContentElement.innerHTML = "";
+        fetch(jsonUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Something went wrong.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                data.forEach(value => {
+                    if (!isNaN(healthIssueNumber) && value.health_issues === healthIssueNumber) {
+                        const lineBreak = document.createElement('br');
+                        jsonContentElement.appendChild(document.createTextNode(value.name));
+                        jsonContentElement.appendChild(lineBreak);
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching JSON:', error);
+            });
+    }
+
+    function getWeight() {
+        const weightType = document.querySelector('input[name="weight"]:checked').value;
+        jsonContentElement.innerHTML = "";
+        fetch(jsonUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Something went wrong.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                data.forEach(value => {
+                    const weight = weightType === 'imperial' ? value.weight.imperial : value.weight.metric;
+                    const lineBreak = document.createElement('br');
+                    jsonContentElement.appendChild(document.createTextNode(weight));
+                    jsonContentElement.appendChild(lineBreak);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching JSON:', error);
+            });
+    }
+
+    function getIntelligenceFriendly() {
+        jsonContentElement.innerHTML = "";
+        fetch(jsonUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Something went wrong.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                data.forEach(value => {
+                    const intelligence = value.intelligence;
+                    const childFriendly = value.child_friendly;
+                    const lineBreak = document.createElement('br');
+                    jsonContentElement.appendChild(document.createTextNode(`I: ${intelligence} | F: ${childFriendly}`));
+                    jsonContentElement.appendChild(lineBreak);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching JSON:', error);
+            });
+    }
+    function getAverageIntelligence() {
+        jsonContentElement.innerHTML = "";
+        fetch(jsonUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Something went wrong.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                let totalIntelligence = 0;
+                let count = 0;
+                data.forEach(value => {
+                    totalIntelligence += value.intelligence;
+                    count++;
+                });
+                const averageIntelligence = (totalIntelligence / count).toFixed(2);
+                jsonContentElement.innerHTML = `Average Intelligence: ${averageIntelligence}`;
+            })
+            .catch(error => {
+                console.error('Error fetching JSON:', error);
+            });
+    }
+
+    function getAverageIntelligenceForChildFriendly() {
+        jsonContentElement.innerHTML = "";
+        fetch(jsonUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Something went wrong.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                let totalIntelligence = 0;
+                let count = 0;
+                data.forEach(value => {
+                    if (value.child_friendly === 4) {
+                        totalIntelligence += value.intelligence;
+                        count++;
+                    }
+                });
+                const averageIntelligence = (totalIntelligence / count).toFixed(2);
+                jsonContentElement.innerHTML = `Average Intelligence for Child Friendly: ${averageIntelligence}`;
+            })
+            .catch(error => {
+                console.error('Error fetching JSON:', error);
+            });
+    }
+</script>
+
+</body>
+</html>
